@@ -1,0 +1,95 @@
+#piano-roll {
+    --width: 0.1px;
+    --height: 1800px;
+
+    width: 100%;
+    height: var(--height);
+
+    background-image: url(assets/piano.png);
+    background-size: calc(var(--height) / 128);
+    background-position: 0 calc(var(--height) / 128 * 9);
+
+    margin-top: 96px;
+}
+
+.track {
+    width: 100%;
+    height: var(--height);
+
+    position: absolute;
+
+    pointer-events: none;
+}
+
+.note {
+    pointer-events: all;
+
+    position: absolute;
+
+    border: gray 1px solid;
+
+    height: calc(var(--height) / 128);
+
+    background-color: rgb(127, 255, 127);
+
+    &.non-harmonic {
+        background-color: rgb(255, 127, 127);
+    }
+
+    &.passing {
+        background-color: rgb(127, 255, 255);
+    }
+
+    &.neighbor {
+        background-color: rgb(255, 255, 127);
+    }
+
+    &.escape {
+        background-color: rgb(127, 127, 255);
+    }
+
+    &.appoggiatura {
+        background-color: rgb(191, 127, 255);
+    }
+
+    &.anticipation {
+        background-color: rgb(63, 191, 63);
+    }
+
+    &.chord {
+        background-color: rgb(255, 255, 191);
+    }
+}
+
+.bar-line {
+    position: absolute;
+    top: 0;
+    height: var(--height);
+    width: 1px;
+    background-color: #000000;
+    pointer-events: none;
+
+    margin-top: 96px;
+}
+
+.beat-line {
+    position: absolute;
+    top: 0;
+    height: var(--height);
+    width: 1px;
+    background-color: #ccc;
+    pointer-events: none;
+
+    margin-top: 96px;
+}
+
+.progress-bar {
+    position: absolute;
+    top: 0;
+    height: var(--height);
+    width: 1.5px;
+    background-color: #000000;
+    pointer-events: none;
+
+    margin-top: 96px;
+}

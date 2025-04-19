@@ -1,0 +1,11 @@
+{
+    "type": "commonjs",
+    "dependencies": {
+        "@types/electron": "^1.4.38",
+        "electron": "^35.1.5",
+        "midi-parser-js": "^4.0.4"
+    },
+    "devDependencies": {
+        "@types/node": "^22.14.1"
+    }
+}
