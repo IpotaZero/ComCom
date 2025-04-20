@@ -1,32 +1,4 @@
 "use strict";
-class MidiFormatter {
-    static async formatMidi(midi) {
-        return Array.from(midi).map((track) => this.#formatTrack(track));
-    }
-    static #formatTrack(track) {
-        const events = [];
-        const noteOnMap = {}; // noteNumber -> absoluteTime
-        let currentTime = 0;
-        for (const e of Array.from(track)) {
-            currentTime = e.tt;
-            // noteOn
-            if (e.isNoteOn()) {
-                noteOnMap[e[1]] = currentTime;
-                continue;
-            }
-            // noteOff || (noteOn && velocity = 0)
-            if (e.isNoteOff() || (e.isNoteOn() && e.getVelocity() === 0)) {
-                const startTime = noteOnMap[e[1]];
-                if (startTime !== undefined) {
-                    const duration = currentTime - startTime;
-                    events.push(new Note(startTime, e[1], duration));
-                    delete noteOnMap[e[1]];
-                }
-            }
-        }
-        return new Track(events);
-    }
-}
 // midiを捨象したデータ
 class Music {
     isReady;
@@ -168,6 +140,34 @@ class Note {
         panel.style.top = `calc(var(--height) / 128 * ${128 - this.pitch})`;
         panel.title = Note.#scale[this.pitch % 12] + ~~(this.pitch / 12 - 1);
         return panel;
+    }
+}
+class MidiFormatter {
+    static async formatMidi(midi) {
+        return Array.from(midi).map((track) => this.#formatTrack(track));
+    }
+    static #formatTrack(track) {
+        const events = [];
+        const noteOnMap = {}; // noteNumber -> absoluteTime
+        let currentTime = 0;
+        for (const e of Array.from(track)) {
+            currentTime = e.tt;
+            // noteOn
+            if (e.isNoteOn()) {
+                noteOnMap[e[1]] = currentTime;
+                continue;
+            }
+            // noteOff || (noteOn && velocity = 0)
+            if (e.isNoteOff() || (e.isNoteOn() && e.getVelocity() === 0)) {
+                const startTime = noteOnMap[e[1]];
+                if (startTime !== undefined) {
+                    const duration = currentTime - startTime;
+                    events.push(new Note(startTime, e[1], duration));
+                    delete noteOnMap[e[1]];
+                }
+            }
+        }
+        return new Track(events);
     }
 }
 //# sourceMappingURL=Music.js.map

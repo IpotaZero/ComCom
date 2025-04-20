@@ -9,7 +9,7 @@
 
     border-bottom: gray 1px solid;
 
-    z-index: 2;
+    z-index: 3;
 
     white-space: nowrap;
 
@@ -21,6 +21,8 @@
 
         border: none;
         border-radius: 10%;
+
+        font-size: 16px;
 
         &:hover {
             background-color: #444;

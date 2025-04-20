@@ -88,4 +88,6 @@
     pointer-events: none;
 
     margin-top: 96px;
+
+    z-index: 2;
 }

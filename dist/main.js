@@ -20,6 +20,35 @@ function createWindow() {
         },
     });
     win.loadURL(mainURL);
+    createMenu(win);
+}
+function createMenu(win) {
+    const menu = [
+        {
+            label: "File",
+            click: () => {
+                const path = electron_1.dialog.showOpenDialogSync(win, {
+                    filters: [{ extensions: ["mid", "midi"], name: "midi" }],
+                });
+                win.webContents.send("open-midi", path);
+            },
+        },
+        {
+            label: "Dev",
+            accelerator: "CmdOrCtrl+Shift+I",
+            click: () => {
+                win.webContents.isDevToolsOpened() ? win.webContents.closeDevTools() : win.webContents.openDevTools();
+            },
+        },
+        {
+            label: "Reload",
+            accelerator: "CmdOrCtrl+R",
+            click: () => {
+                win.webContents.reload();
+            },
+        },
+    ];
+    electron_1.Menu.setApplicationMenu(electron_1.Menu.buildFromTemplate(menu));
 }
 electron_1.app.whenReady().then(() => {
     createWindow();

@@ -1,10 +1,3 @@
-declare const electron: Electron
-
-interface Electron {
-    loadFile: (filePath: string) => Promise<string>
-    writeFile: (filePath: string, binary: string) => Promise<void>
-}
-
 interface MidiEvent {
     0: number
     1: number
@@ -13,40 +6,6 @@ interface MidiEvent {
     isNoteOn(): boolean
     isNoteOff(): boolean
     getVelocity(): number
-}
-
-class MidiFormatter {
-    static async formatMidi(midi: any): Promise<Track[]> {
-        return Array.from(midi).map((track) => this.#formatTrack(track as any))
-    }
-
-    static #formatTrack(track: MidiEvent[]): Track {
-        const events: Note[] = []
-        const noteOnMap: Record<number, number> = {} // noteNumber -> absoluteTime
-        let currentTime = 0
-
-        for (const e of Array.from(track)) {
-            currentTime = e.tt
-
-            // noteOn
-            if (e.isNoteOn()) {
-                noteOnMap[e[1]] = currentTime
-                continue
-            }
-
-            // noteOff || (noteOn && velocity = 0)
-            if (e.isNoteOff() || (e.isNoteOn() && e.getVelocity() === 0)) {
-                const startTime = noteOnMap[e[1]]
-                if (startTime !== undefined) {
-                    const duration = currentTime - startTime
-                    events.push(new Note(startTime, e[1], duration))
-                    delete noteOnMap[e[1]]
-                }
-            }
-        }
-
-        return new Track(events)
-    }
 }
 
 // midiを捨象したデータ
@@ -223,5 +182,39 @@ class Note {
         panel.title = Note.#scale[this.pitch % 12] + ~~(this.pitch / 12 - 1)
 
         return panel
+    }
+}
+
+class MidiFormatter {
+    static async formatMidi(midi: any): Promise<Track[]> {
+        return Array.from(midi).map((track) => this.#formatTrack(track as any))
+    }
+
+    static #formatTrack(track: MidiEvent[]): Track {
+        const events: Note[] = []
+        const noteOnMap: Record<number, number> = {} // noteNumber -> absoluteTime
+        let currentTime = 0
+
+        for (const e of Array.from(track)) {
+            currentTime = e.tt
+
+            // noteOn
+            if (e.isNoteOn()) {
+                noteOnMap[e[1]] = currentTime
+                continue
+            }
+
+            // noteOff || (noteOn && velocity = 0)
+            if (e.isNoteOff() || (e.isNoteOn() && e.getVelocity() === 0)) {
+                const startTime = noteOnMap[e[1]]
+                if (startTime !== undefined) {
+                    const duration = currentTime - startTime
+                    events.push(new Note(startTime, e[1], duration))
+                    delete noteOnMap[e[1]]
+                }
+            }
+        }
+
+        return new Track(events)
     }
 }
