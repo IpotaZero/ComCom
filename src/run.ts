@@ -1,9 +1,15 @@
 declare const JZZ: any
 
 document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        MidiOutputManager.init()
+    } catch (e) {
+        alert(e)
+    }
+
     let midi = new JZZ.MIDI.SMF(await electron.loadFile("test-midi/l1.mid"))
 
-    const music = new Music(midi, 11)
+    const music = new Music(midi)
 
     await music.isReady
 
@@ -13,6 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const track = document.getElementById("track-2")!
     track.innerHTML = ""
+    track.style.filter = ""
     music.tracks[2].displayWithAnalyze(track, music.tracks[3])
 
     console.log(music)
@@ -38,7 +45,7 @@ class UI {
         this.#buttonPlay = document.getElementById("button-play")!
         this.#buttonStop = document.getElementById("button-stop")!
 
-        this.#BPM = document.getElementById("tempo")!
+        this.#BPM = document.getElementById("BPM")!
 
         document.addEventListener("keydown", (e) => {
             if (e.code === "Space") {
@@ -65,18 +72,18 @@ class UI {
 
         pianoRoll.onclick = (e) => {
             this.#progress = Math.round((e.offsetX * 10) / 240) * 240
-            this.#progressBar.style.left = `calc(${this.#progress} * var(--width))`
+            this.#progressBar.style.left = `calc(${this.#progress} * var(--width) - 1px)`
         }
 
         this.#progressBar.classList.add("progress-bar")
         pianoRoll.appendChild(this.#progressBar)
 
         MidiPlayer.onTempoChange = (tempo) => {
-            this.#BPM.innerText = tempo.toFixed(0)
+            this.#BPM.innerText = tempo.toFixed(3)
         }
 
         MidiPlayer.onProgress = (currentTick) => {
-            this.#progressBar.style.left = `calc(${currentTick} * var(--width))`
+            this.#progressBar.style.left = `calc(${currentTick} * var(--width) - 1px)`
         }
     }
 

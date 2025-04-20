@@ -10,12 +10,12 @@ class MidiFormatter {
         for (const e of Array.from(track)) {
             currentTime = e.tt;
             // noteOn
-            if (this.#isNoteOn(e)) {
+            if (e.isNoteOn()) {
                 noteOnMap[e[1]] = currentTime;
                 continue;
             }
             // noteOff || (noteOn && velocity = 0)
-            if (this.#isNoteOff(e) || (this.#isNoteOn(e) && e[2] === 0)) {
+            if (e.isNoteOff() || (e.isNoteOn() && e.getVelocity() === 0)) {
                 const startTime = noteOnMap[e[1]];
                 if (startTime !== undefined) {
                     const duration = currentTime - startTime;
@@ -26,20 +26,12 @@ class MidiFormatter {
         }
         return new Track(events);
     }
-    static #isNoteOn(event) {
-        return 0x90 <= event[0] && event[0] < 0x90 + 16;
-    }
-    static #isNoteOff(event) {
-        return 0x80 <= event[0] && event[0] < 0x80 + 16;
-    }
 }
 // midiを捨象したデータ
 class Music {
     isReady;
     tracks = [];
-    #key;
-    constructor(midi, key) {
-        this.#key = key;
+    constructor(midi) {
         this.isReady = (async () => {
             this.tracks = await MidiFormatter.formatMidi(midi);
         })();
@@ -55,6 +47,7 @@ class Music {
             const trackDiv = document.createElement("div");
             trackDiv.classList.add("track");
             trackDiv.id = "track-" + i;
+            // trackDiv.style.filter = `hue-rotate(${400 * (i / 17)}deg)`
             screen.appendChild(trackDiv);
             track.displayTo(trackDiv, i === 11 ? "rhythm" : "melody");
         });

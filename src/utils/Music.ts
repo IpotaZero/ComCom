@@ -5,34 +5,37 @@ interface Electron {
     writeFile: (filePath: string, binary: string) => Promise<void>
 }
 
-type MidiEvent = {
+interface MidiEvent {
     0: number
     1: number
     2: number
     tt: number
+    isNoteOn(): boolean
+    isNoteOff(): boolean
+    getVelocity(): number
 }
 
 class MidiFormatter {
     static async formatMidi(midi: any): Promise<Track[]> {
-        return Array.from(midi).map((track) => this.#formatTrack(track))
+        return Array.from(midi).map((track) => this.#formatTrack(track as any))
     }
 
-    static #formatTrack(track: any): Track {
+    static #formatTrack(track: MidiEvent[]): Track {
         const events: Note[] = []
         const noteOnMap: Record<number, number> = {} // noteNumber -> absoluteTime
         let currentTime = 0
 
-        for (const e of Array.from(track) as any) {
+        for (const e of Array.from(track)) {
             currentTime = e.tt
 
             // noteOn
-            if (this.#isNoteOn(e)) {
+            if (e.isNoteOn()) {
                 noteOnMap[e[1]] = currentTime
                 continue
             }
 
             // noteOff || (noteOn && velocity = 0)
-            if (this.#isNoteOff(e) || (this.#isNoteOn(e) && e[2] === 0)) {
+            if (e.isNoteOff() || (e.isNoteOn() && e.getVelocity() === 0)) {
                 const startTime = noteOnMap[e[1]]
                 if (startTime !== undefined) {
                     const duration = currentTime - startTime
@@ -44,14 +47,6 @@ class MidiFormatter {
 
         return new Track(events)
     }
-
-    static #isNoteOn(event: any) {
-        return 0x90 <= event[0] && event[0] < 0x90 + 16
-    }
-
-    static #isNoteOff(event: any) {
-        return 0x80 <= event[0] && event[0] < 0x80 + 16
-    }
 }
 
 // midiを捨象したデータ
@@ -59,10 +54,8 @@ class Music {
     isReady: Promise<void>
 
     tracks: Track[] = []
-    #key: number
 
-    constructor(midi: any, key: number) {
-        this.#key = key
+    constructor(midi: any) {
         this.isReady = (async () => {
             this.tracks = await MidiFormatter.formatMidi(midi)
         })()
@@ -81,6 +74,7 @@ class Music {
             const trackDiv = document.createElement("div")
             trackDiv.classList.add("track")
             trackDiv.id = "track-" + i
+            // trackDiv.style.filter = `hue-rotate(${400 * (i / 17)}deg)`
             screen.appendChild(trackDiv)
             track.displayTo(trackDiv, i === 11 ? "rhythm" : "melody")
         })

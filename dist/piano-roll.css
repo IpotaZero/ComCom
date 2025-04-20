@@ -1,6 +1,6 @@
 #piano-roll {
     --width: 0.1px;
-    --height: 1800px;
+    --height: 1500px;
 
     width: 100%;
     height: var(--height);
@@ -54,10 +54,6 @@
 
     &.anticipation {
         background-color: rgb(63, 191, 63);
-    }
-
-    &.chord {
-        background-color: rgb(255, 255, 191);
     }
 }
 

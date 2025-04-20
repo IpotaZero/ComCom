@@ -16,6 +16,7 @@ function createWindow() {
         height: 600,
         webPreferences: {
             preload: path_1.default.join(__dirname, "preload.js"),
+            backgroundThrottling: false,
         },
     });
     win.loadURL(mainURL);
